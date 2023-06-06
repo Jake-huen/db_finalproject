@@ -75,20 +75,25 @@ def db_insert():
     df = pd.read_excel("movie_data.xls")
     df = df.where(pd.notnull(df), None)
     sql_movie_insert = "insert into movie (movie_name_ko, movie_name_en, release_year, release_country, type, release_state, release_company) values (%s, %s, %s, %s, %s, %s, %s)"
-    sql_director_insert = "insert into director (name) values (%s)"
-    sql_genre_insert = "insert into genre (name) values (%s)"
+    sql_director_insert = "insert IGNORE into director (name) values (%s)"
+    sql_genre_insert = "insert IGNORE into genre (name) values (%s)"
     movie_list = []
     director_list = []
-    genre_list = []
+    genre_list = set()
     for index, row in df.iloc[4:100].iterrows():
         movie_list.append(
             (row[0], row[1], row[2], row[3], row[4], row[6], row[8]))  # row[5] : 장르, row[7]: 감독
-        genre_list.append((row[5]))
-        director_list.append((row[7]))
+        genre_split = row[5].split(",")
+        for gs in genre_split:
+            genre_list.add(gs)
+        value = row[7]
+        if not pd.isnull(value):
+            director_list.append((row[7]))
     curs.executemany(sql_movie_insert, movie_list)
     curs.executemany(sql_director_insert, director_list)
-    curs.executemany(sql_genre_insert, genre_list)
+    curs.executemany(sql_genre_insert, list(genre_list))
     conn.commit()
+
 
 db_insert()
 
