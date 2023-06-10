@@ -79,7 +79,7 @@ def create_tables():
     conn.commit()
 
 
-create_tables()
+# create_tables()
 
 
 def db_insert():
@@ -131,7 +131,7 @@ def db_insert():
     conn.commit()
 
 
-db_insert()
+# db_insert()
 
 def db_select_first():
     print("1번 문제 : 2020년에 제작된 다큐멘터리 한국 영화의 영화명과 감독을 영화명 순으로 검색하라")
@@ -201,7 +201,7 @@ def db_select_third():
 def db_select_fourth():
     print("4번 문제 : 각 나라별 가장 많은 제작된 영화 장르를 검색하라")
     sql = """
-    SELECT c.name AS '나라이름', g.name AS '장르이름', COUNT(*) AS 개 
+    SELECT c.name AS '나라이름', g.name AS '장르이름', COUNT(*) AS 개수 
     FROM country c
     JOIN movie m ON c.movie_id = m.id
     JOIN genre g ON m.id = g.movie_id
@@ -238,17 +238,19 @@ def db_select_fifth():
     WHERE c.name IN ('한국', '일본', '중국')
     GROUP BY c.name, d.name
     HAVING COUNT(*) = (
-        SELECT MAX(movie_count)
+        SELECT MAX(cnt)
         FROM (
-            SELECT c2.name AS country_name, d2.name AS director_name, COUNT(*) AS movie_count
+            SELECT c2.name AS country_name, d2.name AS director_name, COUNT(*) AS cnt
             FROM country c2
             JOIN movie m2 ON c2.movie_id = m2.id
             JOIN movie_director md2 ON m2.id = md2.movie_id
             JOIN director d2 ON md2.director_id = d2.id
-            WHERE c2.name = c.name
+            WHERE c2.name IN ('한국', '일본', '중국')
             GROUP BY c2.name, d2.name
         ) AS temp
+        WHERE temp.country_name = c.name
     )
+
 """
     curs.execute(sql)
     row = curs.fetchone()
