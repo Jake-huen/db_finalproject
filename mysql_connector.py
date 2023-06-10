@@ -265,7 +265,60 @@ def db_select_fifth():
 # db_select_second()
 # db_select_third()
 # db_select_fourth()
-db_select_fifth()
+# db_select_fifth()
+
+def search_movies(title='', release_year='', country='', genre='', director=''):
+    # 쿼리 생성
+    query = "SELECT m.movie_name_ko, m.movie_name_en, m.release_year, m.type, m.release_state, m.release_company, c.name AS country, GROUP_CONCAT(DISTINCT g.name) AS genres, GROUP_CONCAT(DISTINCT d.name) AS directors"
+    query += " FROM movie m"
+    query += " JOIN country c ON m.id = c.movie_id"
+    query += " JOIN genre g ON m.id = g.movie_id"
+    query += " JOIN movie_director md ON m.id = md.movie_id"
+    query += " JOIN director d ON md.director_id = d.id"
+    query += " WHERE 1=1"
+
+    if title:
+        query += f" AND (m.movie_name_ko LIKE '%{title}%' OR m.movie_name_en LIKE '%{title}%')"
+    if release_year:
+        query += f" AND m.release_year = '{release_year}'"
+    if country:
+        query += f" AND c.name = '{country}'"
+    if genre:
+        query += f" AND g.name = '{genre}'"
+    if director:
+        query += f" AND d.name = '{director}'"
+
+    query += " GROUP BY m.movie_name_ko, m.movie_name_en, m.release_year, m.type, m.release_state, m.release_company, c.name"
+
+    # 쿼리 실행
+    curs.execute(query)
+    movies = curs.fetchall()
+
+    if movies:
+        print("검색 결과:")
+        for movie in movies:
+            print("영화 한국어(영어) 제목 :", movie['movie_name_ko'], movie['movie_name_en'])
+            print("제작 연도 :", movie['release_year'])
+            print("제작 국가 :", movie['country'])
+            print("장르 :", movie['genres'])
+            print("감독 :", movie['directors'])
+            print("영화 유형 :", movie['type'])
+            print("개봉 여부 :", movie['release_state'])
+            print("제작사 :", movie['release_company'])
+            print("--------------------")
+    else:
+        print("검색 결과가 없습니다.")
+
+
+# 사용자 입력을 받아 검색 조건 설정
+title = input("영화 제목을 입력하세요 (한국어 제목 or 영어 제목): ")
+release_year = input("제작 연도를 입력하세요 (없거나 모르겠으면 Enter): ")
+country = input("제작 국가를 입력하세요 (없거나 모르겠으면 Enter): ")
+genre = input("장르를 입력하세요 (없거나 모르겠으면 Enter): ")
+director = input("감독을 입력하세요 (없거나 모르겠으면 Enter): ")
+
+# 영화 검색 함수 호출
+search_movies(title, release_year, country, genre, director)
 
 curs.close()
 conn.close()
