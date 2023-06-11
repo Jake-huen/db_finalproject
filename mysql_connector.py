@@ -269,7 +269,8 @@ def db_select_fifth():
 
 def search_movies(title='', release_year='', country='', genre='', director=''):
     # 쿼리 생성
-    query = "SELECT m.movie_name_ko, m.movie_name_en, m.release_year, m.type, m.release_state, m.release_company, c.name AS country, GROUP_CONCAT(DISTINCT g.name) AS genres, GROUP_CONCAT(DISTINCT d.name) AS directors"
+    query = "SELECT m.movie_name_ko, m.movie_name_en, m.release_year, m.type, m.release_state, m.release_company, c.name AS country, " \
+            "GROUP_CONCAT(DISTINCT g.name) AS genres, GROUP_CONCAT(DISTINCT d.name) AS directors"
     query += " FROM movie m"
     query += " JOIN country c ON m.id = c.movie_id"
     query += " JOIN genre g ON m.id = g.movie_id"
